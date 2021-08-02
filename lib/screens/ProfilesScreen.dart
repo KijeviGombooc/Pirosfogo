@@ -12,12 +12,22 @@ class ProfilesScreen extends StatefulWidget {
 }
 
 class _ProfilesScreenState extends State<ProfilesScreen> {
+  Profile? lastDismissed;
+  int? lastDismissedIndex;
+  ScaffoldMessengerState? scaffoldMessengerState;
   List<Profile>? profiles;
 
   @override
   void initState() {
     super.initState();
+    _deleteDismissed();
     _loadPlayers();
+  }
+
+  @override
+  void dispose() {
+    _deleteDismissed();
+    super.dispose();
   }
 
   @override
@@ -38,7 +48,7 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
                     padding: const EdgeInsets.all(4.0),
                     child: Dismissible(
                         key: UniqueKey(),
-                        onDismissed: (_) => _onDismissed(i),
+                        onDismissed: (_) => _onDismissed(context, i),
                         child: SizedBox(
                           height: 100,
                           child: InkWell(
@@ -77,9 +87,21 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
     );
   }
 
-  _onDismissed(int listIndex) {
+  _onDismissed(BuildContext context, int listIndex) {
     setState(() {
-      DBHelper.deletePlayer(profiles!.removeAt(listIndex).profileID);
+      _deleteDismissed();
+      lastDismissed = profiles!.removeAt(listIndex);
+      lastDismissedIndex = listIndex;
+      scaffoldMessengerState = ScaffoldMessenger.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          action: SnackBarAction(
+            label: "undo",
+            onPressed: () => _undoDismiss(lastDismissed),
+          ),
+          content: Text("Deleted: ${lastDismissed!.name}"),
+        ),
+      );
     });
   }
 
@@ -104,12 +126,38 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
   }
 
   void _loadPlayers() {
-    DBHelper.getAllProfiles().then(
+    List<Profile>? exceptions =
+        lastDismissed == null ? null : [lastDismissed as Profile];
+    DBHelper.getAllProfiles(except: exceptions).then(
       (profiles) => setState(
         () {
           this.profiles = profiles;
         },
       ),
     );
+  }
+
+  _undoDismiss(Profile? toUndo) {
+    if (lastDismissed == null || lastDismissedIndex == null) {
+      //TODO: proper error handling
+    } else if (toUndo == lastDismissed) {
+      print(toUndo!.name);
+      setState(() {
+        profiles!.insert(lastDismissedIndex!, lastDismissed!);
+        lastDismissed = null;
+        lastDismissedIndex = null;
+      });
+    }
+  }
+
+  void _deleteDismissed() {
+    if (lastDismissed != null &&
+        lastDismissedIndex != null &&
+        scaffoldMessengerState != null) {
+      scaffoldMessengerState!.hideCurrentSnackBar();
+      DBHelper.deletePlayer(lastDismissed!.profileID);
+      lastDismissed = null;
+      lastDismissedIndex = null;
+    }
   }
 }
