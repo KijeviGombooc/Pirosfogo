@@ -148,6 +148,7 @@ class DBHelper {
     List<Map> resultMaps = await _db.query(
       "players",
       columns: ["player_id", "name", "img_uri"],
+      orderBy: "name",
     );
     List<Profile> profiles = List.generate(
       resultMaps.length,
