@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -45,7 +46,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         children: [
           Flexible(
             child: ProfileWidget(
-              onTap: _onImageTapped,
+              onTap: () => _onImageTapped(context),
               image: imagePath.isEmpty
                   ? null
                   : Image.file(
@@ -72,31 +73,51 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     );
   }
 
-  void _onImageTapped() {
-    print("Image tapped");
-    ImagePicker imagePicker = ImagePicker();
-    imagePicker.pickImage(source: ImageSource.gallery).then(
-      (selectedXFile) {
-        if (selectedXFile == null) {
-          //TODO: error handling
+  void _onImageTapped(BuildContext context) {
+    _selectImageOption(context).then(
+      (imageSource) {
+        if (imageSource == null)
           return;
-        }
-        File selectedFile = File(selectedXFile.path);
+        else {
+          ImagePicker imagePicker = ImagePicker();
+          imagePicker.pickImage(source: imageSource).then(
+            (selectedXFile) {
+              if (selectedXFile == null) {
+                //TODO: error handling
+                return;
+              }
+              File selectedFile = File(selectedXFile.path);
 
-        if (imagePath.isNotEmpty) {
-          File oldFile = File(imagePath);
-          oldFile.delete().then(
-                (fileSystemEntity) => _saveImage(
-                  selectedFile,
-                  basename(selectedFile.path),
+              if (imagePath.isNotEmpty) {
+                File oldFile = File(imagePath);
+                oldFile.delete().then(
+                      (fileSystemEntity) => _saveImage(
+                        selectedFile,
+                        basename(selectedFile.path),
+                      ),
+                    );
+              }
+
+              _saveImage(
+                selectedFile,
+                basename(selectedFile.path),
+              );
+            },
+          ).onError<PlatformException>(
+            (error, stackTrace) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(error.message as String),
                 ),
               );
+              print("Error: ${error.message}");
+            },
+          ).catchError(
+            (ex) {
+              print(ex); //TODO: proper error handling
+            },
+          );
         }
-
-        _saveImage(
-          selectedFile,
-          basename(selectedFile.path),
-        );
       },
     );
   }
@@ -126,5 +147,30 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         Navigator.pop(context);
       });
     }
+  }
+
+  Future<ImageSource?> _selectImageOption(BuildContext context) async {
+    return await showDialog<ImageSource>(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text("Image source"),
+          children: [
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, ImageSource.camera);
+              },
+              child: const Text("ImageSource.camera"),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, ImageSource.gallery);
+              },
+              child: const Text("ImageSource.gallery"),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
