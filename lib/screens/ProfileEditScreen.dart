@@ -38,7 +38,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Pirosfogó"),
+        title: Text(widget.profile == null ? "Profile" : widget.profile!.name),
         centerTitle: true,
       ),
       body: Column(

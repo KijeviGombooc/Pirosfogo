@@ -34,7 +34,7 @@ class _ProfilesScreenState extends State<ProfilesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Pirosfogó"),
+        title: Text("Profiles"),
         centerTitle: true,
       ),
       body: profiles == null

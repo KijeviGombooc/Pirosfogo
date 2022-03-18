@@ -26,7 +26,7 @@ class _LoadGameScreenState extends State<LoadGameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Pirosfogó"),
+        title: Text("Load Game"),
         centerTitle: true,
       ),
       body: games == null
