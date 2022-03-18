@@ -31,26 +31,29 @@ class _LoadGameScreenState extends State<LoadGameScreen> {
       ),
       body: games == null
           ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: games!.length,
-              itemBuilder: (ctx, i) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Dismissible(
-                    key: UniqueKey(),
-                    onDismissed: (direction) => _onDismissed(context, i),
-                    confirmDismiss: (direction) =>
-                        _showConfirmationDialog(context),
-                    child: ElevatedButton(
-                      onPressed: () => _loadGame(context, i),
-                      child: Text(
-                        Formatter.date(
-                            games![i].dateTime, "yyyy MMM dd - hh:mm:ss"),
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView.builder(
+                itemCount: games!.length,
+                itemBuilder: (ctx, i) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Dismissible(
+                      key: UniqueKey(),
+                      onDismissed: (direction) => _onDismissed(context, i),
+                      confirmDismiss: (direction) =>
+                          _showConfirmationDialog(context),
+                      child: ElevatedButton(
+                        onPressed: () => _loadGame(context, i),
+                        child: Text(
+                          Formatter.date(
+                              games![i].dateTime, "yyyy MMM dd - hh:mm:ss"),
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
     );
   }
