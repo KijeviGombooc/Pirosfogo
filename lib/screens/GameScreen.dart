@@ -69,7 +69,6 @@ class _GameScreenState extends State<GameScreen> {
                               fit: BoxFit.cover,
                             ),
                       onTap: () => _onPlayerIconPressed(context, playerIndex),
-                      maxSize: Size(double.infinity, 100),
                     ),
                     FittedBox(
                       child: Text(widget.players[playerIndex].profile == null
