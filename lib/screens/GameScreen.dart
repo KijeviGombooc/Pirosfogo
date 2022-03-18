@@ -59,10 +59,15 @@ class _GameScreenState extends State<GameScreen> {
                 child: Column(
                   children: [
                     ProfileWidget(
-                      image: widget.players[playerIndex].profile == null || widget.players[playerIndex].profile!.imageUri.isEmpty
+                      image: widget.players[playerIndex].profile == null ||
+                              widget.players[playerIndex].profile!.imageUri
+                                  .isEmpty
                           ? null
-                          : Image.file(File(
-                              widget.players[playerIndex].profile!.imageUri), fit: BoxFit.cover,),
+                          : Image.file(
+                              File(widget
+                                  .players[playerIndex].profile!.imageUri),
+                              fit: BoxFit.cover,
+                            ),
                       onTap: () => _onPlayerIconPressed(context, playerIndex),
                       maxSize: Size(double.infinity, 100),
                     ),
@@ -135,7 +140,7 @@ class _GameScreenState extends State<GameScreen> {
     if (selectedProfile == null) {
       return;
     } else {
-      int? id = selectedProfile.name.isEmpty ? null selectedProfile.profileID;
+      int? id = selectedProfile.name.isEmpty ? null : selectedProfile.profileID;
 
       DBHelper.updatePlace(
         widget.gameID,
