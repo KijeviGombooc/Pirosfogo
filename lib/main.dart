@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: darkColor,
         ),
         scaffoldBackgroundColor: darkColor,
-        primaryColor: Colors.red.shade900,
+        primaryColor: primaryColor,
         appBarTheme: AppBarTheme(
           backgroundColor: primaryColor,
           foregroundColor: primaryColor,
