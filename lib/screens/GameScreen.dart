@@ -34,6 +34,10 @@ class _GameScreenState extends State<GameScreen> {
     return false;
   }
 
+  int get _currentStarterIndex {
+    return _rowCount % 4;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -71,9 +75,18 @@ class _GameScreenState extends State<GameScreen> {
                       onTap: () => _onPlayerIconPressed(context, playerIndex),
                     ),
                     FittedBox(
-                      child: Text(widget.players[playerIndex].profile == null
-                          ? "Guest"
-                          : widget.players[playerIndex].profile!.name),
+                      child: Container(
+                        padding: const EdgeInsets.all(5.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.0),
+                          color: playerIndex == _currentStarterIndex
+                              ? Theme.of(context).primaryColor
+                              : Theme.of(context).scaffoldBackgroundColor,
+                        ),
+                        child: Text(widget.players[playerIndex].profile == null
+                            ? "Guest"
+                            : widget.players[playerIndex].profile!.name),
+                      ),
                     ),
                     Text(widget.players[playerIndex].scoreSum.toString()),
                   ],
