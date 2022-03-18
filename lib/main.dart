@@ -50,8 +50,7 @@ class MyApp extends StatelessWidget {
         primaryColor: primaryColor,
         appBarTheme: AppBarTheme(
           backgroundColor: primaryColor,
-          foregroundColor: primaryColor,
-          textTheme: textTheme,
+          foregroundColor: secondaryColor,
           iconTheme: IconThemeData(color: darkColor),
         ),
         textSelectionTheme: TextSelectionThemeData(
@@ -60,7 +59,6 @@ class MyApp extends StatelessWidget {
           selectionHandleColor: secondaryColor.withAlpha(60),
         ),
         textTheme: textTheme,
-        accentColor: secondaryColor,
         primarySwatch: Colors.yellow,
         hintColor: secondaryColor.withAlpha(100),
         cardColor: primaryColor,
