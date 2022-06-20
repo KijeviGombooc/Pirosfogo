@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pirosfogo/helpers/DBHelper.dart';
+import 'package:pirosfogo/main.dart';
 import 'package:pirosfogo/model/Player.dart';
 import 'package:pirosfogo/model/Profile.dart';
 import 'package:pirosfogo/screens/SelectProfileScreen.dart';
@@ -98,7 +99,7 @@ class _GameScreenState extends State<GameScreen> {
             padding: const EdgeInsets.all(8.0),
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _isFinished ? null : _onAddRowPressed,
+              onPressed: _isFinished ? null : () => _onAddRowPressed(context),
               child: Text("Next round"),
             ),
           ),
@@ -166,11 +167,20 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  void _onAddRowPressed() {
+  void _onAddRowPressed(BuildContext context) {
     setState(() {
       if (!_isLastRowValid()) {
-        //TODO: Toast message:
-        print("Row count must be 8!");
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: MyApp.primaryColor,
+            content: Text(
+              "Row sum must be 8!",
+              style: TextStyle(color: MyApp.secondaryColor),
+            ),
+            duration: Duration(seconds: 1),
+          ),
+        );
         return;
       }
       for (var i = 0; i < widget.players.length; i++) {
