@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:pirosfogo/helpers/DBHelper.dart';
 import 'package:pirosfogo/main.dart';
 import 'package:pirosfogo/model/Player.dart';
 import 'package:pirosfogo/model/Profile.dart';
+import 'package:pirosfogo/model/RowValue.dart';
 import 'package:pirosfogo/screens/SelectProfileScreen.dart';
 import 'package:pirosfogo/widgets/ProfileWidget.dart';
 import 'package:pirosfogo/widgets/ScoreTextField.dart';
@@ -20,6 +22,9 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  static const soundPath = "sounds/ahhhaaa.mp3";
+  final player = AudioPlayer();
+  final AssetSource soundSource = AssetSource(soundPath);
   late List<TextEditingController> controllers;
 
   int get _rowCount {
@@ -42,9 +47,12 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
+    player.audioCache.load(soundPath);
     //TODO: check if all widget.players have same number of rows
     controllers = List.generate(
-        widget.players.length, (playerIndex) => TextEditingController());
+      widget.players.length,
+      (playerIndex) => TextEditingController(),
+    );
   }
 
   @override
@@ -169,7 +177,9 @@ class _GameScreenState extends State<GameScreen> {
 
   void _onAddRowPressed(BuildContext context) {
     setState(() {
-      if (!_isLastRowValid()) {
+      final rowValue = _isLastRowValid();
+      // Invalid input handling
+      if (rowValue == RowValue.INVALID) {
         ScaffoldMessenger.of(context).removeCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -183,6 +193,13 @@ class _GameScreenState extends State<GameScreen> {
         );
         return;
       }
+
+      // play ""nyolcas" sound
+      if (rowValue == RowValue.VALID_EIGHT) {
+        player.play(soundSource);
+      }
+
+      // update db values, add new row
       for (var i = 0; i < widget.players.length; i++) {
         try {
           int score = int.parse(controllers[i].text);
@@ -199,23 +216,27 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
-  bool _isLastRowValid() {
+  RowValue _isLastRowValid() {
     int sum = 0;
-    bool loophole = false;
+    bool hasSomeoneLost = false;
+    bool isValueEight = false;
     for (var i = 0; i < controllers.length; i++) {
       try {
         int val = int.parse(controllers[i].text);
+        if (val == 8) isValueEight = true;
         if (widget.players[i].scoreSum + val >= 24) {
-          if (loophole)
-            return false;
-          else
-            loophole = true;
+          if (hasSomeoneLost) return RowValue.INVALID;
+          hasSomeoneLost = true;
         }
         sum += val;
       } catch (e) {
         //TODO: proper error handling
       }
     }
-    return sum == 8 || (sum < 8 && loophole);
+    if (sum == 8 || (sum < 8 && hasSomeoneLost)) {
+      if (isValueEight) return RowValue.VALID_EIGHT;
+      return RowValue.VALID_SUM;
+    } else
+      return RowValue.INVALID;
   }
 }
